@@ -12,6 +12,7 @@ namespace LifeSim
 {
     public partial class Form1 : Form
     {
+        private int currentGeneration = 0;
         private Graphics graphics;
         private int resolution;
         private bool [,] field;
@@ -27,7 +28,10 @@ namespace LifeSim
         private void StartGame()
         {
             if (timer1.Enabled) 
-                return; 
+                return;
+
+            currentGeneration = 0;
+            Text = $"Generation {currentGeneration}";
 
             nudResolution.Enabled = false;
             nudDensity.Enabled = false;
@@ -84,6 +88,7 @@ namespace LifeSim
             }
             field = newField;
             pictureBox1.Refresh();
+            Text = $"Generation {++currentGeneration}";
         }
 
         private int CountNeighbours(int x, int y)
@@ -131,6 +136,40 @@ namespace LifeSim
         private void bStop_Click(object sender, EventArgs e)
         {
             StopGame();
+        }
+
+        private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (!timer1.Enabled)
+                return;
+
+            if (e.Button == MouseButtons.Left)
+            {
+                var x = e.Location.X / resolution;
+                var y = e.Location.Y / resolution;
+                var validationPassed = ValidateMousePosition(x, y);
+                if (validationPassed)
+                    field[x, y] = true;
+            }
+            
+            if (e.Button == MouseButtons.Right)
+            {
+                var x = e.Location.X / resolution;
+                var y = e.Location.Y / resolution;
+                var validationPassed = ValidateMousePosition(x, y);
+                if (validationPassed)
+                    field[x, y] = false;
+            }
+        }
+
+        private bool ValidateMousePosition(int x, int y)
+        {
+            return x >= 0 && y >= 0 && x < cols && y < rows;
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            Text = $"Generation {currentGeneration}";
         }
     }
 }
